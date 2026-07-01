@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SmartGastro{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="grid-2">
+    <div class="card">
+        <h2>Clima - Buenos Aires</h2>
+        {% if clima.ok %}
+            <p><strong>{{ clima.ciudad }}</strong>: {{ clima.descripcion|capitalize }} — {{ clima.temperatura }}°C</p>
+            {% if clima.lluvia %}
+                <div class="alert alert-warning">
+                    <strong>Alerta de lluvia:</strong> se recomienda reducir la produccion para evitar perdida de stock.
+                </div>
+            {% else %}
+                <div class="alert alert-success">Condiciones favorables para operar con produccion normal.</div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-error">{{ clima.error }}</div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Alertas de stock bajo</h2>
+        {% if stock_bajo %}
+            <ul>
+                {% for p in stock_bajo %}
+                    <li class="stock-bajo">{{ p.nombre }} — quedan {{ p.stock }} unidades (umbral: {{ umbral }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Todos los productos tienen stock suficiente.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>Inventario actual</h2>
+    {% if productos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>${{ "%.2f"|format(p.precio) }}</td>
+                <td {% if p.stock <= umbral %}class="stock-bajo"{% endif %}>{{ p.stock }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No hay productos cargados.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SmartGastro{% endblock %}
+
+{% block content %}
+<div class="card login-container">
+    <h1>SmartGastro</h1>
+    <p>Sistema de gestion para foodtrucks</p>
+    <form method="post">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Contrasena</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit" class="btn btn-primary">Ingresar</button>
+    </form>
+</div>
+{% endblock %}

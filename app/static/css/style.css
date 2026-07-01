@@ -1,0 +1,151 @@
+:root {
+    --azul: #1e5aa8;
+    --azul-oscuro: #123f75;
+    --gris: #f4f6f8;
+    --rojo: #c0392b;
+    --verde: #1e8449;
+    --amarillo: #f39c12;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: var(--gris);
+    color: #222;
+}
+
+a {
+    color: var(--azul);
+    text-decoration: none;
+}
+
+header {
+    background: var(--azul);
+    color: #fff;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav a {
+    color: #fff;
+    margin-left: 1rem;
+}
+
+main {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+h1, h2 {
+    margin-top: 0;
+    color: var(--azul-oscuro);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: var(--azul);
+    color: #fff;
+}
+
+.btn-danger {
+    background: var(--rojo);
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: #fff;
+}
+
+form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+form input, form select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.alert-success { background: #d4edda; color: var(--verde); }
+.alert-error { background: #f8d7da; color: var(--rojo); }
+.alert-info { background: #d1ecf1; color: #0c5460; }
+.alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+.login-container {
+    max-width: 400px;
+    margin: 4rem auto;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stock-bajo {
+    color: var(--rojo);
+    font-weight: bold;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.hidden {
+    display: none;
+}
+
+#mensaje-async {
+    margin-top: 1rem;
+}

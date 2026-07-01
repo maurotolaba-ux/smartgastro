@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - SmartGastro{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Clientes</h1>
+    <a href="{{ url_for('clientes.nuevo') }}" class="btn btn-primary">Nuevo cliente</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Telefono</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in clientes %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.nombre }}</td>
+                <td>{{ c.telefono }}</td>
+                <td>
+                    <a href="{{ url_for('clientes.editar', cliente_id=c.id) }}">Editar</a>
+                    <form class="inline-form" method="post" action="{{ url_for('clientes.eliminar', cliente_id=c.id) }}"
+                          onsubmit="return confirm('Eliminar cliente?');">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">No hay clientes cargados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

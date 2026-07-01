@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{% if cliente %}Editar{% else %}Nuevo{% endif %} cliente - SmartGastro{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{% if cliente %}Editar cliente{% else %}Nuevo cliente{% endif %}</h1>
+    <form method="post">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" value="{{ cliente.nombre if cliente else '' }}" required>
+
+        <label for="telefono">Telefono</label>
+        <input type="text" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" required>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{{ url_for('clientes.listar') }}" class="btn btn-secondary">Volver</a>
+    </form>
+</div>
+{% endblock %}

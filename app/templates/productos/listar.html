@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Productos - SmartGastro{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Productos</h1>
+    <p>
+        <a href="{{ url_for('productos.nuevo') }}" class="btn btn-secondary">Nuevo producto (formulario)</a>
+    </p>
+
+    <h2>Alta rapida</h2>
+    <form id="form-producto-async">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="precio">Precio</label>
+        <input type="number" id="precio" name="precio" step="0.01" min="0.01" required>
+
+        <label for="stock">Stock</label>
+        <input type="number" id="stock" name="stock" min="0" required>
+
+        <button type="submit" class="btn btn-primary">Agregar producto</button>
+    </form>
+    <div id="mensaje-async"></div>
+
+    <h2>Listado</h2>
+    <table id="tabla-productos">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr data-id="{{ p.id }}">
+                <td>{{ p.id }}</td>
+                <td>{{ p.nombre }}</td>
+                <td>${{ "%.2f"|format(p.precio) }}</td>
+                <td>{{ p.stock }}</td>
+                <td>
+                    <a href="{{ url_for('productos.editar', producto_id=p.id) }}">Editar</a>
+                    <button type="button" class="btn btn-danger btn-eliminar" data-id="{{ p.id }}">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById("form-producto-async");
+const mensaje = document.getElementById("mensaje-async");
+const tbody = document.querySelector("#tabla-productos tbody");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+        nombre: document.getElementById("nombre").value.trim(),
+        precio: parseFloat(document.getElementById("precio").value),
+        stock: parseInt(document.getElementById("stock").value, 10),
+    };
+
+    const response = await fetch("/api/productos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    mensaje.className = response.ok ? "alert alert-success" : "alert alert-error";
+    mensaje.textContent = data.mensaje || data.error;
+
+    if (response.ok && data.producto) {
+        const p = data.producto;
+        const existing = tbody.querySelector(`tr[data-id="${p.id}"]`);
+        if (existing) {
+            existing.children[3].textContent = p.stock;
+        } else {
+            const tr = document.createElement("tr");
+            tr.dataset.id = p.id;
+            tr.innerHTML = `
+                <td>${p.id}</td>
+                <td>${p.nombre}</td>
+                <td>$${p.precio.toFixed(2)}</td>
+                <td>${p.stock}</td>
+                <td>
+                    <a href="/productos/${p.id}/editar">Editar</a>
+                    <button type="button" class="btn btn-danger btn-eliminar" data-id="${p.id}">Eliminar</button>
+                </td>`;
+            tbody.appendChild(tr);
+        }
+        form.reset();
+    }
+});
+
+tbody.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("btn-eliminar")) return;
+
+    const id = e.target.dataset.id;
+    const response = await fetch(`/api/productos/${id}`, { method: "DELETE" });
+    const data = await response.json();
+
+    mensaje.className = response.ok ? "alert alert-success" : "alert alert-error";
+    mensaje.textContent = data.mensaje || data.error;
+
+    if (response.ok) {
+        const row = tbody.querySelector(`tr[data-id="${id}"]`);
+        if (row) row.remove();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos - SmartGastro{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Pedidos / Ventas</h1>
+    <a href="{{ url_for('pedidos.nuevo') }}" class="btn btn-primary">Registrar venta (formulario)</a>
+
+    <h2>Venta rapida</h2>
+    <form id="form-pedido-async">
+        <label for="cliente_id">Cliente</label>
+        <select id="cliente_id" name="cliente_id" required>
+            <option value="">Seleccionar...</option>
+        </select>
+
+        <label for="producto_id">Producto</label>
+        <select id="producto_id" name="producto_id" required>
+            <option value="">Seleccionar...</option>
+        </select>
+
+        <label for="cantidad">Cantidad</label>
+        <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
+
+        <button type="submit" class="btn btn-primary">Registrar venta</button>
+    </form>
+    <div id="mensaje-async"></div>
+
+    <h2>Historial</h2>
+    <table id="tabla-pedidos">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ped in pedidos %}
+            <tr data-id="{{ ped.id }}">
+                <td>{{ ped.id }}</td>
+                <td>{{ ped.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ ped.cliente.nombre }}</td>
+                <td>${{ "%.2f"|format(ped.total) }}</td>
+                <td>{{ ped.estado }}</td>
+                <td>
+                    <form class="inline-form" method="post" action="{{ url_for('pedidos.eliminar', pedido_id=ped.id) }}"
+                          onsubmit="return confirm('Eliminar pedido?');">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No hay pedidos registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const clientes = {{ clientes_json|safe }};
+const productos = {{ productos_json|safe }};
+
+const selectCliente = document.getElementById("cliente_id");
+const selectProducto = document.getElementById("producto_id");
+
+clientes.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.nombre;
+    selectCliente.appendChild(opt);
+});
+
+productos.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = `${p.nombre} (stock: ${p.stock})`;
+    selectProducto.appendChild(opt);
+});
+
+const form = document.getElementById("form-pedido-async");
+const mensaje = document.getElementById("mensaje-async");
+const tbody = document.querySelector("#tabla-pedidos tbody");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+        cliente_id: parseInt(selectCliente.value, 10),
+        producto_id: parseInt(selectProducto.value, 10),
+        cantidad: parseInt(document.getElementById("cantidad").value, 10),
+    };
+
+    const response = await fetch("/pedidos/api/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    mensaje.className = response.ok ? "alert alert-success" : "alert alert-error";
+    mensaje.textContent = data.mensaje || data.error;
+
+    if (response.ok && data.pedido) {
+        const ped = data.pedido;
+        const tr = document.createElement("tr");
+        tr.dataset.id = ped.id;
+        tr.innerHTML = `
+            <td>${ped.id}</td>
+            <td>${new Date().toLocaleString('es-AR')}</td>
+            <td>${ped.cliente}</td>
+            <td>$${ped.total.toFixed(2)}</td>
+            <td>Pendiente</td>
+            <td></td>`;
+        tbody.prepend(tr);
+
+        const prodOpt = selectProducto.querySelector(`option[value="${payload.producto_id}"]`);
+        if (prodOpt) {
+            prodOpt.textContent = `${ped.producto} (stock: ${ped.stock_restante})`;
+        }
+        form.reset();
+        document.getElementById("cantidad").value = 1;
+    }
+});
+</script>
+{% endblock %}
